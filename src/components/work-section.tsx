@@ -5,8 +5,8 @@ const projects = [
   {
     title: "Enterprise E-Commerce Platform",
     description:
-      "Built a high-performance e-commerce platform with Next.js and Strapi CMS for a global retail brand. Implemented advanced SEO, lazy loading, and code splitting to achieve a 95+ Lighthouse score.",
-    tags: ["Next.js", "Strapi", "TypeScript", "Tailwind CSS"],
+      "Built a high-performance e-commerce storefront using Magento for catalogue & checkout, with dynamic content — banners, promotions, and landing pages — managed by editors without dev involvement. Achieved 95+ Lighthouse score.",
+    tags: ["Magento", "Next.js", "TypeScript", "Tailwind CSS"],
     icon: ShoppingBag,
     gradient: "from-violet-500 to-purple-600",
     metrics: ["95+ Lighthouse", "40% Faster Load", "3x Conversion"],

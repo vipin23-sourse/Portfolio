@@ -58,6 +58,11 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://vipinmv.dev" },
+  icons: {
+    icon:    [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple:   [{ url: "/favicon.svg" }],
+    shortcut:[{ url: "/favicon.svg" }],
+  },
 };
 
 /* ── JSON-LD structured data ──────────────────────────────────────────── */

@@ -3,7 +3,7 @@
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, Loader2, Shield } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const MAX_NAME     = 80;
@@ -42,9 +42,17 @@ type Status = "idle" | "loading" | "success" | "error";
 // ── Input class helper ────────────────────────────────────────────────────────
 function inputCls(hasError?: boolean) {
   return cn(
+    // Base
     "w-full px-4 rounded-xl bg-secondary border text-foreground placeholder:text-muted-foreground text-sm",
-    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200",
-    hasError ? "border-destructive ring-1 ring-destructive/40" : "border-border"
+    // Smooth: only animate the properties that actually change (no jank from transition-all)
+    "transition-[border-color,box-shadow,background-color] duration-300 ease-in-out",
+    // Focus: border fades to purple + soft outer glow instead of a hard ring
+    "focus:outline-none focus:border-primary focus:bg-accent/30",
+    "focus:shadow-[0_0_0_3px_hsl(262,83%,65%,0.15),0_0_12px_hsl(262,83%,65%,0.08)]",
+    // Error state
+    hasError
+      ? "border-destructive focus:border-destructive focus:shadow-[0_0_0_3px_hsl(0,84%,60%,0.15)]"
+      : "border-border hover:border-primary/40"
   );
 }
 
@@ -58,7 +66,11 @@ export function ContactSection() {
   const [statusMsg, setStatusMsg] = useState("");
 
   // Rate-limit ref (stores last submit timestamp)
-  const lastSubmit = useRef<number>(0);
+  const lastSubmit  = useRef<number>(0);
+  const loadedAt    = useRef<number>(0);
+
+  // Record when the form was rendered — used for bot timing check
+  useEffect(() => { loadedAt.current = Date.now(); }, []);
 
   // ── Validate ──────────────────────────────────────────────────────────────
   const validate = useCallback((): FieldErrors => {
@@ -80,12 +92,12 @@ export function ContactSection() {
   }, [name, email, subject, message]);
 
   // ── Submit ────────────────────────────────────────────────────────────────
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Honeypot check (hidden field must be empty)
     const honeypot = (e.currentTarget.elements.namedItem("website") as HTMLInputElement)?.value;
-    if (honeypot) return; // bot detected — silently ignore
+    if (honeypot) return; // bot — silently ignore
 
     // Rate limit
     const now = Date.now();
@@ -103,16 +115,30 @@ export function ContactSection() {
       return;
     }
     setErrors({});
-
-    // ── Simulate async send ──────────────────────────────────────────────
     setStatus("loading");
     lastSubmit.current = now;
 
-    setTimeout(() => {
-      setStatus("success");
-      setStatusMsg("Message sent! I'll get back to you soon. 🚀");
-      setName(""); setEmail(""); setSubject(""); setMessage("");
-    }, 1400);
+    try {
+      const res = await fetch("/api/contact", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ name, email, subject, message, _honey: honeypot, _loadedAt: loadedAt.current }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus("error");
+        setStatusMsg(data.error ?? "Something went wrong. Please try again.");
+      } else {
+        setStatus("success");
+        setStatusMsg("Message sent! I'll get back to you soon. 🚀");
+        setName(""); setEmail(""); setSubject(""); setMessage("");
+      }
+    } catch {
+      setStatus("error");
+      setStatusMsg("Network error. Please check your connection and try again.");
+    }
   };
 
   const msgLen = message.length;

@@ -104,7 +104,7 @@ export function WorkSection() {
 
                 <div className="p-4 sm:p-6 flex flex-col flex-1">
                   {/* Icon + title */}
-                  <div className="flex items-start gap-4 mb-4">
+                  <div className="flex items-center gap-4 mb-4">
                     <div
                       className={cn(
                         "h-12 w-12 rounded-xl flex items-center justify-center shrink-0",

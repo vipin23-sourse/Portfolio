@@ -10,7 +10,7 @@ const projects = [
     icon: ShoppingBag,
     gradient: "from-violet-500 to-purple-600",
     metrics: ["95+ Lighthouse", "40% Faster Load", "3x Conversion"],
-    link: "#",
+    link: "",
   },
   {
     title: "Cyber Insurance Portal",
@@ -20,7 +20,7 @@ const projects = [
     icon: Shield,
     gradient: "from-indigo-500 to-blue-600",
     metrics: ["WCAG AA", "90+ Perf Score", "25% More Users"],
-    link: "#",
+    link: "",
   },
   {
     title: "Global Brand Web Experience",
@@ -30,7 +30,7 @@ const projects = [
     icon: Globe,
     gradient: "from-purple-500 to-pink-600",
     metrics: ["Pixel Perfect", "60fps Animations", "5 Markets"],
-    link: "#",
+    link: "",
   },
   {
     title: "AI-Enhanced Dev Workflow",
@@ -40,7 +40,7 @@ const projects = [
     icon: Cpu,
     gradient: "from-rose-500 to-orange-500",
     metrics: ["20% Faster Dev", "AI-Powered", "Team-Wide"],
-    link: "#",
+    link: "",
   },
   {
     title: "UI Component Library",
@@ -50,7 +50,7 @@ const projects = [
     icon: Layout,
     gradient: "from-green-500 to-teal-600",
     metrics: ["50+ Components", "Design System", "Multi-project"],
-    link: "#",
+    link: "",
   },
   {
     title: "Performance Optimization Suite",
@@ -60,7 +60,7 @@ const projects = [
     icon: Zap,
     gradient: "from-amber-500 to-yellow-600",
     metrics: ["30% Faster", "40% Less Bundle", "LCP < 2s"],
-    link: "#",
+    link: "",
   },
 ];
 
@@ -154,17 +154,15 @@ export function WorkSection() {
                   </div>
 
                   {/* Link */}
-                  <a
-                    href={project.link}
-                    className={cn(
-                      "inline-flex items-center gap-2 text-sm font-medium text-primary",
-                      "hover:underline underline-offset-4 transition-all duration-200",
-                      "group/link"
-                    )}
-                  >
-                    View Case Study
-                    <ExternalLink className="h-3.5 w-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
-                  </a>
+                  {project.link && (
+                    <a
+                      href={project.link}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline underline-offset-4 transition-all duration-200 group/link"
+                    >
+                      View Case Study
+                      <ExternalLink className="h-3.5 w-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
+                    </a>
+                  )}
                 </div>
               </article>
             );

@@ -273,14 +273,14 @@ export function ExperienceSection() {
                 {/* ── Card ────────────────────────────────────────────── */}
                 <div
                   className={cn(
-                    "md:w-1/2 ml-16 md:ml-0",
+                    "md:w-1/2 ml-14 sm:ml-16 md:ml-0",
                     index % 2 === 0 ? "md:pr-14" : "md:pl-14"
                   )}
                 >
                   <div
                     ref={(el) => { cardRefs.current[index] = el; }}
                     className={cn(
-                      "group relative rounded-2xl p-6 bg-card border border-border",
+                      "group relative rounded-2xl p-4 sm:p-6 bg-card border border-border",
                       "hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/8",
                       "transition-shadow duration-300"
                     )}
@@ -314,7 +314,7 @@ export function ExperienceSection() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 mb-4 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {exp.period}

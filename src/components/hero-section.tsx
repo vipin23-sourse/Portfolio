@@ -24,75 +24,76 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-10 text-center">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-12 text-center">
+
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent border border-primary/20 text-accent-foreground text-sm font-medium mb-8 animate-fade-up">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-accent border border-primary/20 text-accent-foreground text-xs sm:text-sm font-medium mb-8 animate-fade-up">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
-          Available for freelance & remote work
+          Available for freelance &amp; remote work
         </div>
 
         {/* Name */}
-        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight mb-6 animate-fade-up animate-delay-100">
+        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-6 animate-fade-up animate-delay-100">
           <span className="text-foreground">Vipin </span>
           <span className="gradient-text">MV</span>
         </h1>
 
         {/* Title */}
-        <div className="flex items-center justify-center gap-3 mb-6 animate-fade-up animate-delay-200">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary/50" />
-          <p className="text-xl sm:text-2xl font-semibold text-muted-foreground">
+        <div className="flex items-center justify-center gap-3 mb-5 animate-fade-up animate-delay-200">
+          <div className="h-px w-8 sm:w-16 bg-gradient-to-r from-transparent to-primary/50" />
+          <p className="text-lg sm:text-2xl font-semibold text-muted-foreground whitespace-nowrap">
             UI / Frontend Developer
           </p>
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary/50" />
+          <div className="h-px w-8 sm:w-16 bg-gradient-to-l from-transparent to-primary/50" />
         </div>
 
         {/* Sub title */}
-        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-up animate-delay-300">
+        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-up animate-delay-300">
           6+ years crafting{" "}
           <span className="text-foreground font-medium">pixel-perfect</span>,{" "}
           <span className="text-foreground font-medium">high-performance</span> web apps for
           international brands. Expert in{" "}
           <span className="gradient-text font-semibold">React.js</span>,{" "}
-          <span className="gradient-text font-semibold">Next.js</span> &{" "}
+          <span className="gradient-text font-semibold">Next.js</span> &amp;{" "}
           <span className="gradient-text font-semibold">AI-enhanced workflows</span>.
         </p>
 
-        {/* Stats */}
-        <div className="flex flex-wrap justify-center gap-8 mb-12 animate-fade-up animate-delay-300">
+        {/* Stats — 2×2 grid on mobile, row on sm+ */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-y-6 gap-x-8 sm:gap-8 mb-12 animate-fade-up animate-delay-300">
           {[
-            { value: "6+", label: "Years Exp." },
+            { value: "6+",  label: "Years Exp."   },
             { value: "30%", label: "Page Speed ↑" },
             { value: "25%", label: "Engagement ↑" },
             { value: "40%", label: "Bundle Size ↓" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="text-3xl font-bold gradient-text">{stat.value}</div>
+              <div className="text-2xl sm:text-3xl font-bold gradient-text">{stat.value}</div>
               <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-14 animate-fade-up animate-delay-400">
+        {/* CTAs — stacked on mobile, row on sm+ */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-14 animate-fade-up animate-delay-400 px-2 sm:px-0">
           <a
             href="#work"
-            className="inline-flex h-12 px-8 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200 glow"
+            className="w-full sm:w-auto inline-flex h-12 px-8 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200 glow"
           >
             View My Work
           </a>
           <a
             href="#contact"
-            className="inline-flex h-12 px-8 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
+            className="w-full sm:w-auto inline-flex h-12 px-8 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
           >
             Get In Touch
           </a>
         </div>
 
         {/* Social Links */}
-        <div className="flex justify-center gap-4 mb-16 animate-fade-up animate-delay-500">
+        <div className="flex justify-center gap-3 sm:gap-4 mb-16 animate-fade-up animate-delay-500">
           {[
             { href: "https://linkedin.com/in/vipin-vijayakumar", icon: LinkedInIcon, label: "LinkedIn" },
             { href: "mailto:vipin.m2@gmail.com", icon: Mail, label: "Email" },

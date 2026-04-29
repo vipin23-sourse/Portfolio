@@ -124,9 +124,9 @@ export function ContactSection() {
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">Get In Touch</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Let&apos;s <span className="gradient-text">Work Together</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -134,12 +134,12 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
 
           {/* Left: Contact info */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-foreground mb-6">Ready to build something great?</h3>
-            <p className="text-muted-foreground leading-relaxed mb-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Ready to build something great?</h3>
+            <p className="text-muted-foreground leading-relaxed mb-6 sm:mb-8">
               I specialise in high-performance frontend development, UI architecture, and
               AI-enhanced workflows. Let&apos;s turn your vision into a pixel-perfect, blazing-fast reality.
             </p>
@@ -181,7 +181,7 @@ export function ContactSection() {
           </div>
 
           {/* Right: Contact form */}
-          <div className="rounded-2xl bg-card border border-border p-8 shadow-xl">
+          <div className="rounded-2xl bg-card border border-border p-5 sm:p-8 shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
 
               {/* ── Honeypot (hidden from real users, catches bots) ── */}

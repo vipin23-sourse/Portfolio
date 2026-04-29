@@ -27,13 +27,13 @@ export function AboutSection() {
   return (
     <section id="about" className="section-padding bg-secondary/30">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
           {/* Left: Visual */}
-          <div className="relative order-2 lg:order-1">
+          <div className="relative order-1 hidden lg:block">
             {/* Decorative element */}
             <div className="relative w-full max-w-sm mx-auto">
               <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/20 to-indigo-500/20 rounded-3xl blur-2xl" />
-              <div className="relative rounded-3xl border border-border bg-card p-8 shadow-2xl">
+              <div className="relative rounded-3xl border border-border bg-card p-5 sm:p-8 sm:shadow-2xl">
                 {/* Avatar placeholder */}
                 <div className="h-24 w-24 rounded-2xl gradient-bg flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-6">
                   V
@@ -73,11 +73,11 @@ export function AboutSection() {
           </div>
 
           {/* Right: Content */}
-          <div className="order-1 lg:order-2">
+          <div className="order-2 lg:order-2">
             <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">
               About Me
             </p>
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-5 sm:mb-6">
               Building the <span className="gradient-text">web of tomorrow</span>
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
@@ -99,31 +99,31 @@ export function AboutSection() {
               </p>
             </div>
 
-            <div className="mt-8 grid grid-cols-2 gap-4">
+            <div className="mt-6 sm:mt-8 grid grid-cols-2 min-[480px]:grid-cols-2 gap-3 sm:gap-4">
               {[
                 { label: "Location", value: "Kerala, India" },
                 { label: "Experience", value: "6+ Years" },
                 { label: "Focus", value: "React / Next.js" },
                 { label: "Availability", value: "Open to Work" },
               ].map(({ label, value }) => (
-                <div key={label} className="rounded-xl bg-card border border-border p-4">
+                <div key={label} className="rounded-xl bg-card border border-border p-3 sm:p-4">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
                   <p className="font-semibold text-foreground">{value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-6 sm:mt-8 flex flex-col min-[400px]:flex-row gap-3">
               <a
                 href="#contact"
-                className="inline-flex h-11 px-6 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200"
+                className="flex-1 min-[400px]:flex-none inline-flex h-11 px-6 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200"
               >
                 Let&apos;s Talk
               </a>
               <a
                 href="/vipin2026.pdf"
                 download="Vipin_MV_Resume.pdf"
-                className="inline-flex h-11 px-6 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
+                className="flex-1 min-[400px]:flex-none inline-flex h-11 px-6 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
               >
                 Download CV
               </a>

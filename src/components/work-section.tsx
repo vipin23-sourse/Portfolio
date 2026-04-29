@@ -69,7 +69,7 @@ export function WorkSection() {
     <section id="work" className="section-padding">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">
             Portfolio
           </p>
@@ -82,7 +82,7 @@ export function WorkSection() {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {projects.map((project) => {
             const Icon = project.icon;
             return (
@@ -102,7 +102,7 @@ export function WorkSection() {
                   )}
                 />
 
-                <div className="p-6 flex flex-col flex-1">
+                <div className="p-4 sm:p-6 flex flex-col flex-1">
                   {/* Icon + title */}
                   <div className="flex items-start gap-4 mb-4">
                     <div

@@ -5,13 +5,19 @@ import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Shared size — placeholder and real button MUST be identical to prevent CLS
+const BTN_CLS =
+  "relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl " +
+  "bg-secondary border border-border transition-all duration-300";
+
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  // Exact same dimensions as the real button — zero layout shift on hydration
+  if (!mounted) return <div className={BTN_CLS} aria-hidden="true" />;
 
   const isDark = theme === "dark";
 
@@ -19,9 +25,8 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative inline-flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300",
-        "bg-secondary hover:bg-accent hover:text-accent-foreground",
-        "border border-border hover:border-primary/30",
+        BTN_CLS,
+        "hover:bg-accent hover:text-accent-foreground hover:border-primary/30",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       )}
       aria-label="Toggle theme"

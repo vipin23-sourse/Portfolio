@@ -113,17 +113,17 @@ export function AboutSection() {
               ))}
             </div>
 
-            <div className="mt-6 sm:mt-8 flex flex-col min-[400px]:flex-row gap-3">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3">
               <a
                 href="#contact"
-                className="flex-1 min-[400px]:flex-none inline-flex h-11 px-6 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200"
+                className="w-full sm:w-auto inline-flex h-12 px-6 items-center justify-center rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200"
               >
                 Let&apos;s Talk
               </a>
               <a
                 href="/vipin2026.pdf"
                 download="Vipin_MV_Resume.pdf"
-                className="flex-1 min-[400px]:flex-none inline-flex h-11 px-6 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
+                className="w-full sm:w-auto inline-flex h-12 px-6 items-center justify-center rounded-xl bg-secondary border border-border text-foreground font-medium hover:border-primary/40 hover:bg-accent transition-all duration-200"
               >
                 Download CV
               </a>

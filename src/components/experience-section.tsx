@@ -202,7 +202,7 @@ export function ExperienceSection() {
   }, []);
 
   return (
-    <section id="experience" ref={sectionRef} className="section-padding bg-secondary/30">
+    <section id="experience" ref={sectionRef} className="section-padding bg-secondary/30 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}

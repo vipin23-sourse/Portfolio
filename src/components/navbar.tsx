@@ -50,14 +50,14 @@ export function Navbar() {
       <header
         ref={menuRef}
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden transition-all duration-500",
+          "fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden py-4 transition-colors duration-500",
           scrolled
-            ? "py-3 bg-background/90 backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/5"
-            : "py-5 bg-transparent"
+            ? "bg-background/90 backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/5"
+            : "bg-transparent border-b border-transparent"
         )}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="xl:max-w-6xl w-full mx-auto flex items-center justify-between gap-2">
+          <div className="max-w-6xl w-full mx-auto flex items-center justify-between gap-2">
 
             {/* Logo */}
             <Link
@@ -97,7 +97,7 @@ export function Navbar() {
 
               <a
                 href="mailto:vipin.m2@gmail.com"
-                className="hidden md:inline-flex h-9 lg:h-10 px-3 lg:px-5 items-center justify-center rounded-xl gradient-bg text-white text-sm font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                className="hidden md:inline-flex h-9 px-4 items-center justify-center rounded-xl gradient-bg text-white text-sm font-medium shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-200 whitespace-nowrap shrink-0"
               >
                 Hire Me
               </a>

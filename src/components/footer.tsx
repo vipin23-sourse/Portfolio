@@ -1,5 +1,3 @@
-"use client";
-
 import { Mail, Phone, Heart } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
 

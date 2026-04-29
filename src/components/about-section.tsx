@@ -1,5 +1,3 @@
-"use client";
-
 import { User, Code2, Sparkles, TrendingUp } from "lucide-react";
 
 const highlights = [

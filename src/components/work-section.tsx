@@ -1,5 +1,3 @@
-"use client";
-
 import { ExternalLink, Globe, Zap, Shield, ShoppingBag, Layout, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,7 +83,7 @@ export function WorkSection() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, i) => {
+          {projects.map((project) => {
             const Icon = project.icon;
             return (
               <article

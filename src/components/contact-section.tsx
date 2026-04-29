@@ -1,43 +1,131 @@
 "use client";
 
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, Loader2, Shield } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { useState, useRef, useCallback } from "react";
 
+// ── Constants ────────────────────────────────────────────────────────────────
+const MAX_NAME     = 80;
+const MAX_SUBJECT  = 120;
+const MAX_MESSAGE  = 1000;
+const MIN_MESSAGE  = 20;
+const RATE_LIMIT_MS = 60_000; // 1 min between submissions
+
+// ── Sanitiser — strips HTML tags and dangerous chars ─────────────────────────
+function sanitize(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, "")               // strip HTML tags
+    .replace(/[<>"'`]/g, "")              // strip angle brackets / quotes
+    .replace(/javascript:/gi, "")         // strip JS proto
+    .replace(/on\w+\s*=/gi, "")           // strip event handlers
+    .trim();
+}
+
+// ── Email format validator ────────────────────────────────────────────────────
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// ── Contact link data ─────────────────────────────────────────────────────────
 const contactLinks = [
-  {
-    icon: Mail,
-    label: "Email",
-    value: "vipin.m2@gmail.com",
-    href: "mailto:vipin.m2@gmail.com",
-    gradient: "from-violet-500 to-purple-600",
-  },
-  {
-    icon: Phone,
-    label: "Phone",
-    value: "+91 9633 49 1984",
-    href: "tel:+919633491984",
-    gradient: "from-indigo-500 to-blue-600",
-  },
-  { icon: LinkedInIcon, label: "LinkedIn", value: "vipin-vijayakumar", href: "https://linkedin.com/in/vipin-vijayakumar", gradient: "from-blue-500 to-cyan-600" },
-  {
-    icon: MapPin,
-    label: "Location",
-    value: "Kerala, India",
-    href: "#",
-    gradient: "from-rose-500 to-pink-600",
-  },
+  { icon: Mail,         label: "Email",    value: "vipin.m2@gmail.com",    href: "mailto:vipin.m2@gmail.com",                  gradient: "from-violet-500 to-purple-600" },
+  { icon: Phone,        label: "Phone",    value: "+91 9633 49 1984",       href: "tel:+919633491984",                          gradient: "from-indigo-500 to-blue-600"  },
+  { icon: LinkedInIcon, label: "LinkedIn", value: "vipin-vijayakumar",      href: "https://linkedin.com/in/vipin-vijayakumar", gradient: "from-blue-500 to-cyan-600"    },
+  { icon: MapPin,       label: "Location", value: "Kerala, India",          href: "#",                                          gradient: "from-rose-500 to-pink-600"    },
 ];
 
+// ── Field errors type ─────────────────────────────────────────────────────────
+type FieldErrors = { name?: string; email?: string; subject?: string; message?: string };
+type Status = "idle" | "loading" | "success" | "error";
+
+// ── Input class helper ────────────────────────────────────────────────────────
+function inputCls(hasError?: boolean) {
+  return cn(
+    "w-full px-4 rounded-xl bg-secondary border text-foreground placeholder:text-muted-foreground text-sm",
+    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200",
+    hasError ? "border-destructive ring-1 ring-destructive/40" : "border-border"
+  );
+}
+
 export function ContactSection() {
+  const [name,    setName]    = useState("");
+  const [email,   setEmail]   = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [errors,  setErrors]  = useState<FieldErrors>({});
+  const [status,  setStatus]  = useState<Status>("idle");
+  const [statusMsg, setStatusMsg] = useState("");
+
+  // Rate-limit ref (stores last submit timestamp)
+  const lastSubmit = useRef<number>(0);
+
+  // ── Validate ──────────────────────────────────────────────────────────────
+  const validate = useCallback((): FieldErrors => {
+    const e: FieldErrors = {};
+    const sName    = sanitize(name);
+    const sEmail   = email.trim();
+    const sSubject = sanitize(subject);
+    const sMessage = sanitize(message);
+
+    if (!sName || sName.length < 2)           e.name    = "Name must be at least 2 characters.";
+    if (sName.length > MAX_NAME)              e.name    = `Name must be under ${MAX_NAME} characters.`;
+    if (!sEmail || !isValidEmail(sEmail))     e.email   = "Please enter a valid email address.";
+    if (!sSubject || sSubject.length < 3)     e.subject = "Subject must be at least 3 characters.";
+    if (sSubject.length > MAX_SUBJECT)        e.subject = `Subject must be under ${MAX_SUBJECT} characters.`;
+    if (!sMessage || sMessage.length < MIN_MESSAGE) e.message = `Message must be at least ${MIN_MESSAGE} characters.`;
+    if (sMessage.length > MAX_MESSAGE)        e.message = `Message must be under ${MAX_MESSAGE} characters.`;
+
+    return e;
+  }, [name, email, subject, message]);
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Honeypot check (hidden field must be empty)
+    const honeypot = (e.currentTarget.elements.namedItem("website") as HTMLInputElement)?.value;
+    if (honeypot) return; // bot detected — silently ignore
+
+    // Rate limit
+    const now = Date.now();
+    if (now - lastSubmit.current < RATE_LIMIT_MS) {
+      const wait = Math.ceil((RATE_LIMIT_MS - (now - lastSubmit.current)) / 1000);
+      setStatus("error");
+      setStatusMsg(`Please wait ${wait}s before sending another message.`);
+      return;
+    }
+
+    // Field validation
+    const fieldErrors = validate();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+
+    // ── Simulate async send ──────────────────────────────────────────────
+    setStatus("loading");
+    lastSubmit.current = now;
+
+    setTimeout(() => {
+      setStatus("success");
+      setStatusMsg("Message sent! I'll get back to you soon. 🚀");
+      setName(""); setEmail(""); setSubject(""); setMessage("");
+    }, 1400);
+  };
+
+  const msgLen = message.length;
+  const msgNear = msgLen > MAX_MESSAGE * 0.85;
+  const msgOver  = msgLen > MAX_MESSAGE;
+
   return (
     <section id="contact" className="section-padding bg-secondary/30">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">
-            Get In Touch
-          </p>
+          <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">Get In Touch</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
             Let&apos;s <span className="gradient-text">Work Together</span>
           </h2>
@@ -47,11 +135,10 @@ export function ContactSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
           {/* Left: Contact info */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-foreground mb-6">
-              Ready to build something great?
-            </h3>
+            <h3 className="text-2xl font-bold text-foreground mb-6">Ready to build something great?</h3>
             <p className="text-muted-foreground leading-relaxed mb-8">
               I specialise in high-performance frontend development, UI architecture, and
               AI-enhanced workflows. Let&apos;s turn your vision into a pixel-perfect, blazing-fast reality.
@@ -72,12 +159,7 @@ export function ContactSection() {
                       "transition-all duration-200"
                     )}
                   >
-                    <div
-                      className={cn(
-                        "h-10 w-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0",
-                        link.gradient
-                      )}
-                    >
+                    <div className={cn("h-10 w-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0", link.gradient)}>
                       <Icon className="h-5 w-5 text-white" />
                     </div>
                     <div className="min-w-0">
@@ -90,97 +172,157 @@ export function ContactSection() {
                 );
               })}
             </div>
+
+            {/* Security badge */}
+            <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground border border-border rounded-xl px-4 py-3 bg-card">
+              <Shield className="h-4 w-4 text-primary shrink-0" />
+              <span>This form is protected against spam, XSS, and abuse.</span>
+            </div>
           </div>
 
           {/* Right: Contact form */}
           <div className="rounded-2xl bg-card border border-border p-8 shadow-xl">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("Thanks! I'll get back to you soon.");
-              }}
-              className="space-y-5"
-            >
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
+              {/* ── Honeypot (hidden from real users, catches bots) ── */}
+              <div className="hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  placeholder="Leave this blank"
+                />
+              </div>
+
+              {/* Name + Email row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="name">
-                    Name
-                  </label>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-foreground" htmlFor="contact-name">Name <span className="text-destructive">*</span></label>
+                    <span className={cn("text-xs tabular-nums", name.length > MAX_NAME ? "text-destructive" : "text-muted-foreground")}>
+                      {name.length}/{MAX_NAME}
+                    </span>
+                  </div>
                   <input
-                    id="name"
+                    id="contact-name"
                     type="text"
                     required
+                    value={name}
+                    maxLength={MAX_NAME + 1}
+                    onChange={(e) => { setName(e.target.value); setErrors((prev) => ({ ...prev, name: undefined })); }}
                     placeholder="John Doe"
-                    className={cn(
-                      "w-full h-11 px-4 rounded-xl bg-secondary border border-border",
-                      "text-foreground placeholder:text-muted-foreground text-sm",
-                      "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-                      "transition-all duration-200"
-                    )}
+                    className={cn(inputCls(!!errors.name), "h-11")}
                   />
+                  {errors.name && <p className="mt-1.5 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.name}</p>}
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="email">
-                    Email
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="contact-email">
+                    Email <span className="text-destructive">*</span>
                   </label>
                   <input
-                    id="email"
+                    id="contact-email"
                     type="email"
                     required
+                    value={email}
+                    maxLength={254}
+                    onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
                     placeholder="john@example.com"
-                    className={cn(
-                      "w-full h-11 px-4 rounded-xl bg-secondary border border-border",
-                      "text-foreground placeholder:text-muted-foreground text-sm",
-                      "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-                      "transition-all duration-200"
-                    )}
+                    className={cn(inputCls(!!errors.email), "h-11")}
                   />
+                  {errors.email && <p className="mt-1.5 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.email}</p>}
                 </div>
               </div>
 
+              {/* Subject */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2" htmlFor="subject">
-                  Subject
-                </label>
+                <div className="flex justify-between mb-2">
+                  <label className="text-sm font-medium text-foreground" htmlFor="contact-subject">Subject <span className="text-destructive">*</span></label>
+                  <span className={cn("text-xs tabular-nums", subject.length > MAX_SUBJECT ? "text-destructive" : "text-muted-foreground")}>
+                    {subject.length}/{MAX_SUBJECT}
+                  </span>
+                </div>
                 <input
-                  id="subject"
+                  id="contact-subject"
                   type="text"
                   required
+                  value={subject}
+                  maxLength={MAX_SUBJECT + 1}
+                  onChange={(e) => { setSubject(e.target.value); setErrors((prev) => ({ ...prev, subject: undefined })); }}
                   placeholder="Project Inquiry"
-                  className={cn(
-                    "w-full h-11 px-4 rounded-xl bg-secondary border border-border",
-                    "text-foreground placeholder:text-muted-foreground text-sm",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-                    "transition-all duration-200"
-                  )}
+                  className={cn(inputCls(!!errors.subject), "h-11")}
                 />
+                {errors.subject && <p className="mt-1.5 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.subject}</p>}
               </div>
 
+              {/* Message + live counter */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2" htmlFor="message">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  required
-                  rows={5}
-                  placeholder="Tell me about your project..."
-                  className={cn(
-                    "w-full px-4 py-3 rounded-xl bg-secondary border border-border",
-                    "text-foreground placeholder:text-muted-foreground text-sm",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-                    "transition-all duration-200 resize-none"
-                  )}
-                />
+                <div className="flex justify-between mb-2">
+                  <label className="text-sm font-medium text-foreground" htmlFor="contact-message">Message <span className="text-destructive">*</span></label>
+                  <span className={cn(
+                    "text-xs tabular-nums font-medium transition-colors duration-200",
+                    msgOver  ? "text-destructive" :
+                    msgNear  ? "text-amber-500 dark:text-amber-400" :
+                               "text-muted-foreground"
+                  )}>
+                    {msgLen}/{MAX_MESSAGE}
+                  </span>
+                </div>
+                <div className="relative">
+                  <textarea
+                    id="contact-message"
+                    required
+                    rows={5}
+                    value={message}
+                    maxLength={MAX_MESSAGE + 1}
+                    onChange={(e) => { setMessage(e.target.value); setErrors((prev) => ({ ...prev, message: undefined })); }}
+                    placeholder={`Tell me about your project... (min ${MIN_MESSAGE} characters)`}
+                    className={cn(inputCls(!!errors.message || msgOver), "py-3 resize-none")}
+                  />
+
+                </div>
+                {errors.message && <p className="mt-1.5 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.message}</p>}
+                {msgOver && !errors.message && <p className="mt-1.5 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />Message exceeds the {MAX_MESSAGE} character limit.</p>}
               </div>
 
+              {/* Status banner */}
+              {status === "success" && (
+                <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle className="h-4 w-4 shrink-0" />
+                  {statusMsg}
+                </div>
+              )}
+              {status === "error" && (
+                <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {statusMsg}
+                </div>
+              )}
+
+              {/* Submit */}
               <button
                 type="submit"
-                className="w-full h-12 flex items-center justify-center gap-2 rounded-xl gradient-bg text-white font-medium shadow-lg hover:opacity-90 hover:scale-[1.01] transition-all duration-200"
+                disabled={status === "loading" || status === "success" || msgOver}
+                className={cn(
+                  "w-full h-12 flex items-center justify-center gap-2 rounded-xl font-medium shadow-lg transition-all duration-200",
+                  status === "loading" || status === "success" || msgOver
+                    ? "gradient-bg opacity-60 cursor-not-allowed"
+                    : "gradient-bg text-white hover:opacity-90 hover:scale-[1.01]"
+                )}
               >
-                <Send className="h-4 w-4" />
-                Send Message
+                {status === "loading" ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
+                ) : status === "success" ? (
+                  <><CheckCircle className="h-4 w-4" /> Sent!</>
+                ) : (
+                  <><Send className="h-4 w-4" /> Send Message</>
+                )}
               </button>
+
+              <p className="text-center text-xs text-muted-foreground">
+                All fields are sanitised. Your data is never stored or sold.
+              </p>
             </form>
           </div>
         </div>

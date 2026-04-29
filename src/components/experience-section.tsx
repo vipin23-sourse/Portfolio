@@ -1,7 +1,12 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Briefcase, Calendar, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const experiences = [
   {
@@ -69,11 +74,139 @@ const experiences = [
 ];
 
 export function ExperienceSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // ── 1. Section header fade-up ─────────────────────────────────────
+      gsap.from(".exp-header", {
+        y: 40,
+        opacity: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".exp-header",
+          start: "top 85%",
+          toggleActions: "play none none reverse",
+        },
+      });
+
+      // ── 2. Timeline line draws from top → bottom ───────────────────────
+      gsap.fromTo(
+        lineRef.current,
+        { scaleY: 0, transformOrigin: "top center" },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 60%",
+            end: "bottom 80%",
+            scrub: 0.6,
+          },
+        }
+      );
+
+      // ── 3. Each dot: empty ➜ filled as line reaches it ────────────────
+      dotRefs.current.forEach((dot, i) => {
+        if (!dot) return;
+
+        // The inner fill circle scales from 0 → 1
+        const fill = dot.querySelector(".dot-fill");
+        const ring = dot.querySelector(".dot-ring");
+
+        gsap.fromTo(
+          fill,
+          { scale: 0 },
+          {
+            scale: 1,
+            duration: 0.5,
+            ease: "back.out(2)",
+            scrollTrigger: {
+              trigger: dot,
+              start: "top 72%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Ring pulse
+        gsap.fromTo(
+          ring,
+          { scale: 1, opacity: 0.7 },
+          {
+            scale: 2.2,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: dot,
+              start: "top 72%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+
+      // ── 4. Cards slide in from alternating sides ───────────────────────
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        const isLeft = i % 2 === 0;
+
+        gsap.fromTo(
+          card,
+          {
+            x: isLeft ? -60 : 60,
+            opacity: 0,
+            rotateY: isLeft ? -6 : 6,
+          },
+          {
+            x: 0,
+            opacity: 1,
+            rotateY: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Stagger list items inside card
+        const items = card.querySelectorAll(".exp-highlight");
+        gsap.fromTo(
+          items,
+          { x: 12, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 75%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="experience" className="section-padding bg-secondary/30">
+    <section id="experience" ref={sectionRef} className="section-padding bg-secondary/30">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="exp-header text-center mb-20">
           <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">
             My Journey
           </p>
@@ -87,46 +220,71 @@ export function ExperienceSection() {
 
         {/* Timeline */}
         <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-primary/30 to-transparent md:-translate-x-px" />
 
-          <div className="space-y-12">
-            {experiences.map((exp, i) => (
+          {/* ── Animated vertical line ───────────────────────────────────── */}
+          <div className="absolute left-5 md:left-1/2 top-0 bottom-0 w-px bg-border/40 md:-translate-x-px" />
+          <div
+            ref={lineRef}
+            className="absolute left-5 md:left-1/2 top-0 bottom-0 w-px md:-translate-x-px origin-top"
+            style={{
+              background:
+                "linear-gradient(to bottom, hsl(262,83%,65%), hsl(230,83%,65%), hsl(262,83%,65%))",
+              transform: "scaleY(0)",
+              transformOrigin: "top center",
+            }}
+          />
+
+          <div className="space-y-16">
+            {experiences.map((exp, index) => (
               <div
                 key={exp.company}
                 className={cn(
-                  "relative flex flex-col md:flex-row gap-8",
-                  i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  "relative flex flex-col md:flex-row gap-0",
+                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
                 )}
               >
-                {/* Timeline dot */}
-                <div className="absolute left-4 md:left-1/2 top-6 md:-translate-x-1/2 -translate-x-1/2">
+                {/* ── Animated dot ─────────────────────────────────────── */}
+                <div
+                  ref={(el) => { dotRefs.current[index] = el; }}
+                  className="absolute left-5 md:left-1/2 top-8 md:-translate-x-1/2 -translate-x-1/2 z-10"
+                >
+                  {/* Ghost ring (outer pulse) */}
+                  <div className="dot-ring absolute inset-0 rounded-full border-2 border-primary scale-1 opacity-0" />
+                  {/* Outer border circle (always visible) */}
                   <div
                     className={cn(
-                      "h-4 w-4 rounded-full border-2 z-10 relative",
-                      exp.current
-                        ? "bg-primary border-primary shadow-lg shadow-primary/40"
-                        : "bg-background border-primary/50"
+                      "relative h-5 w-5 rounded-full border-2 flex items-center justify-center",
+                      exp.current ? "border-primary" : "border-primary/50"
                     )}
+                    style={{ background: "hsl(var(--background))" }}
                   >
-                    {exp.current && (
-                      <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-30" />
-                    )}
+                    {/* Inner fill — animated by GSAP */}
+                    <div
+                      className="dot-fill h-2.5 w-2.5 rounded-full"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, hsl(262,83%,65%), hsl(230,83%,65%))",
+                        transform: "scale(0)",
+                      }}
+                    />
                   </div>
                 </div>
 
-                {/* Content card */}
+                {/* ── Card ────────────────────────────────────────────── */}
                 <div
                   className={cn(
-                    "md:w-1/2 ml-12 md:ml-0",
-                    i % 2 === 0 ? "md:pr-12" : "md:pl-12"
+                    "md:w-1/2 ml-16 md:ml-0",
+                    index % 2 === 0 ? "md:pr-14" : "md:pl-14"
                   )}
                 >
                   <div
+                    ref={(el) => { cardRefs.current[index] = el; }}
                     className={cn(
                       "group relative rounded-2xl p-6 bg-card border border-border",
-                      "hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+                      "hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/8",
+                      "transition-shadow duration-300"
                     )}
+                    style={{ perspective: "800px" }}
                   >
                     {/* Current badge */}
                     {exp.current && (
@@ -136,32 +294,42 @@ export function ExperienceSection() {
                       </div>
                     )}
 
+                    {/* Top gradient shimmer on hover */}
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, hsl(262,83%,65%,0.04) 0%, transparent 60%)",
+                      }}
+                    />
+
                     <div className="flex items-start gap-3 mb-4">
                       <div className="h-10 w-10 rounded-xl gradient-bg flex items-center justify-center shrink-0 shadow-md">
                         <Briefcase className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-foreground">{exp.role}</h3>
-                        <p className="text-primary font-semibold">{exp.company}</p>
+                        <h3 className="font-bold text-lg text-foreground leading-tight">
+                          {exp.role}
+                        </h3>
+                        <p className="text-primary font-semibold text-sm">{exp.company}</p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 mb-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap gap-3 mb-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
+                        <Calendar className="h-3 w-3" />
                         {exp.period}
                       </span>
                       <span className="flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5" />
+                        <MapPin className="h-3 w-3" />
                         {exp.location}
                       </span>
                     </div>
 
-                    <ul className="space-y-2 mb-4">
+                    <ul className="space-y-2 mb-5">
                       {exp.highlights.map((h, hi) => (
                         <li
                           key={hi}
-                          className="flex items-start gap-2 text-sm text-muted-foreground"
+                          className="exp-highlight flex items-start gap-2 text-sm text-muted-foreground"
                         >
                           <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
                           {h}
@@ -182,7 +350,7 @@ export function ExperienceSection() {
                   </div>
                 </div>
 
-                {/* Empty space for alternating layout */}
+                {/* Spacer for alternating layout */}
                 <div className="hidden md:block md:w-1/2" />
               </div>
             ))}

@@ -1,8 +1,5 @@
-"use client";
-
 import { ArrowDown, Mail, Phone } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
-import { cn } from "@/lib/utils";
 
 export function HeroSection() {
   return (
